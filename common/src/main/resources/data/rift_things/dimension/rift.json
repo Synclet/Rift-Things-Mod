@@ -1,0 +1,16 @@
+{
+  "type": "rift_things:rift_type",
+  "generator": {
+    "type": "minecraft:flat",
+    "settings": {
+      "biome": "minecraft:plains",
+      "lakes": false,
+      "features": false,
+      "disable_mob_generation": true,
+      "layers": [],
+      "structures": {
+        "structures": {}
+      }
+    }
+  }
+}

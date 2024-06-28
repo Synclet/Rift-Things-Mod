@@ -1,0 +1,15 @@
+{
+  "itemGroup.rift_things.rift_things_tab": "Rift Things",
+
+  "item.rift_things.rift_shard": "Rift Shard",
+  "item.rift_things.rift_ingot": "Rift Ingot",
+  "item.rift_things.rift_pearl": "Rift Pearl",
+  "item.rift_things.rift_sword": "Rift Sword",
+  "item.rift_things.rift_pickaxe": "Rift Pickaxe",
+  "item.rift_things.rift_axe": "Rift Axe",
+  "item.rift_things.rift_shovel": "Rift Shovel",
+  "item.rift_things.rift_hoe": "Rift Hoe",
+  "item.rift_things.rift_key": "Rift Key",
+
+  "entity.rift_things.rift_remnant": "Rift Remnant"
+}

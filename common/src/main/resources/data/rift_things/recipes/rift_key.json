@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "A  ",
+    "AB ",
+    "  A"
+  ],
+  "key": {
+    "A": {
+      "item": "rift_things:rift_ingot"
+    },
+    "B": {
+      "item": "rift_things:rift_pearl"
+    }
+  },
+  "result": {
+    "item": "rift_things:rift_key",
+    "count": 1
+  }
+}

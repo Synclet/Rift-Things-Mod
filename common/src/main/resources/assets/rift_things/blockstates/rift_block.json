@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "rift_things:block/rift_block"
+    }
+  }
+}
