@@ -60,31 +60,32 @@ public class RiftRoom {
 
 	public int increaseHeight(int amount, Player player) {
 		int heightLeft = 255 - (height + 1);
-		int difference = heightLeft - amount;
+		System.out.println(" ------------ height " + height);
 		int newHeight = height;
 
-		if (difference > 0) {
+		if (heightLeft - amount > 0) {
 			newHeight = height + amount;
 		}
 		else {
 			newHeight = height + heightLeft;
 		}
+		int result = newHeight - height;
 		if (newHeight != height) {
 			changeHeight(savedData.server.getLevel(ModDimensions.RIFT), newHeight);
 		}
 
-		return newHeight - height;
+		savedData.setDirty();
+		return result;
 	}
 
 	private void changeHeight(Level level, int newHeight) {
+		System.out.println(" --------------- newheight " + newHeight);
 		BlockPos corner = new BlockPos(position * 16, 0, 0);
 		BlockPos corner2 = corner.offset(15, height + 1, 15);
 
 		generateCube(level, corner, corner2, Blocks.AIR.defaultBlockState(), 2);
 		this.height = newHeight;
 		generate(level);
-
-		savedData.setDirty();
 	}
 
 	private static void generateCube(Level level, BlockPos pos1, BlockPos pos2, BlockState state, int flag)

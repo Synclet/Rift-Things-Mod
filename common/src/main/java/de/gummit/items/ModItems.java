@@ -13,7 +13,10 @@ public class ModItems {
     public static final RegistrySupplier<RiftAxe> RIFT_AXE = RiftThingsMod.ITEMS.register(RiftAxe.ITEM_ID, RiftAxe::new);
     public static final RegistrySupplier<RiftShovel> RIFT_SHOVEL = RiftThingsMod.ITEMS.register(RiftShovel.ITEM_ID, RiftShovel::new);
     public static final RegistrySupplier<RiftHoe> RIFT_HOE = RiftThingsMod.ITEMS.register(RiftHoe.ITEM_ID, RiftHoe::new);
-    public static final RegistrySupplier<RiftKey> RIFT_Key = RiftThingsMod.ITEMS.register(RiftKey.ITEM_ID, RiftKey::new);
+    public static final RegistrySupplier<RiftKey> RIFT_KEY = RiftThingsMod.ITEMS.register(RiftKey.ITEM_ID, RiftKey::new);
+
+    public static final RegistrySupplier<RiftBlockItem> RIFT_BLOCK = RiftThingsMod.ITEMS.register(RiftBlockItem.ITEM_ID, RiftBlockItem::new);
+    public static final RegistrySupplier<RiftCoreBlockItem> RIFT_CORE = RiftThingsMod.ITEMS.register(RiftCoreBlockItem.ITEM_ID, RiftCoreBlockItem::new);
 
     public static void init() {
         RiftThingsMod.ITEMS.register();

@@ -3,7 +3,7 @@
   "generator": {
     "type": "minecraft:flat",
     "settings": {
-      "biome": "minecraft:plains",
+      "biome": "rift_things:rift",
       "lakes": false,
       "features": false,
       "disable_mob_generation": true,

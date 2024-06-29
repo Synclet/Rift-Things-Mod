@@ -1,4 +1,5 @@
 {
-  "parent": "block/cube",
+  "render_type": "minecraft:translucent",
+  "parent": "block/cube_all",
   "textures": { "all": "rift_things:block/rift_block" }
 }

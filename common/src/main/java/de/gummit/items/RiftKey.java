@@ -59,7 +59,7 @@ public class RiftKey extends Item {
             CompoundTag tag = player.getItemInHand(interactionHand).getTag();
             NBTUtils.writeBlockPosToNBT(tag, "originPos", player.blockPosition());
             tag.putString("originDim", player.level.dimension().location().toString());
-            roomHandler.teleportPlayerToSpectreCube(player);
+            roomHandler.teleportPlayerToRoom(player);
         }
 
         return InteractionResultHolder.success(player.getItemInHand(interactionHand));

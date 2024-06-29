@@ -4,8 +4,6 @@ import de.gummit.dimension.ModDimensions;
 import de.gummit.utils.ServerUtils;
 import de.gummit.utils.TeleportUtils;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -25,11 +23,15 @@ public class RoomHandler {
         savedData = new RiftSavedData(server);
     }
 
-    public RiftRoom getSpectreCubeFromPos(Level level, BlockPos pos) {
+    // not in use and not functional
+    @Deprecated
+    public RiftRoom getRoomFromPos(Level level, BlockPos pos) {
         if (level.dimension() != ModDimensions.RIFT) {
+            System.out.println(" -------------- level");
             return null;
         }
         if (pos.getZ() > 16 || pos.getZ() < 0) {
+            System.out.println(" ---------------- pos");
             return null;
         }
 
@@ -40,6 +42,7 @@ public class RoomHandler {
         for (RiftRoom cube : savedData.cubes.values()) {
             if (cube.position / 16 == position) {
                 if (pos.getY() <= 0 || pos.getY() > cube.height + 1 || pos.getX() < position * 16 || pos.getX() > cube.position * 16 + 15) {
+                    System.out.println(" --------------------- whatever");
                     return null;
                 }
                 else {
@@ -51,14 +54,18 @@ public class RoomHandler {
         return null;
     }
 
-    public void teleportPlayerToSpectreCube(Player player) {
+    public RiftRoom getRoomFromPlayer(Player player) {
+        return savedData.cubes.get(player.getUUID());
+    }
+
+    public void teleportPlayerToRoom(Player player) {
         UUID uuid = player.getGameProfile().getId();
         RiftRoom riftRoom;
 
         if (savedData.cubes.containsKey(uuid)) {
             riftRoom = savedData.cubes.get(uuid);
         } else {
-            riftRoom = generateSpectreCube(uuid);
+            riftRoom = generateRoom(uuid);
         }
 
         TeleportUtils.teleport(
@@ -75,7 +82,7 @@ public class RoomHandler {
         TeleportUtils.teleport(level, player, pos);
     }
 
-    private RiftRoom generateSpectreCube(UUID uuid) {
+    private RiftRoom generateRoom(UUID uuid) {
         RiftRoom cube = new RiftRoom(savedData, uuid, savedData.cubes.size() * 16);
 
         cube.generate(server.getLevel(ModDimensions.RIFT));

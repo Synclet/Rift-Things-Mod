@@ -11,5 +11,10 @@
   "item.rift_things.rift_hoe": "Rift Hoe",
   "item.rift_things.rift_key": "Rift Key",
 
+  "block.rift_things.rift_block": "Rift Barrier",
+  "item.rift_things.rift_block": "Rift Barrier",
+  "block.rift_things.rift_core": "Rift Core",
+  "item.rift_things.rift_core": "Rift Core",
+
   "entity.rift_things.rift_remnant": "Rift Remnant"
 }
