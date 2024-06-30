@@ -36,7 +36,7 @@ public class RiftShard extends Item {
             return InteractionResult.PASS;
         }
         RoomHandler roomHandler = new RoomHandler(useOnContext.getPlayer());
-        ServerUtils.getServer(useOnContext.getPlayer()).executeBlocking(() -> {
+        ServerUtils.getServer(useOnContext.getPlayer()).execute(() -> {
             int used = roomHandler.getRoomFromPlayer(useOnContext.getPlayer()).increaseHeight(useOnContext.getItemInHand().getCount(), useOnContext.getPlayer());
             useOnContext.getItemInHand().setCount(useOnContext.getItemInHand().getCount() - used);
         });

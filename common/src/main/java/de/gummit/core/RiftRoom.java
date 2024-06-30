@@ -60,7 +60,6 @@ public class RiftRoom {
 
 	public int increaseHeight(int amount, Player player) {
 		int heightLeft = 255 - (height + 1);
-		System.out.println(" ------------ height " + height);
 		int newHeight = height;
 
 		if (heightLeft - amount > 0) {
@@ -79,7 +78,6 @@ public class RiftRoom {
 	}
 
 	private void changeHeight(Level level, int newHeight) {
-		System.out.println(" --------------- newheight " + newHeight);
 		BlockPos corner = new BlockPos(position * 16, 0, 0);
 		BlockPos corner2 = corner.offset(15, height + 1, 15);
 

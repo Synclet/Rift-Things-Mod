@@ -1,3 +1,20 @@
 {
-  "item.rift_things.rift_token": "Rift Token"
+  "itemGroup.rift_things.rift_things_tab": "Rift Things",
+
+  "item.rift_things.rift_shard": "Spaltenscherbe",
+  "item.rift_things.rift_ingot": "Spalten Barren",
+  "item.rift_things.rift_pearl": "Spalten Perle",
+  "item.rift_things.rift_sword": "Spalten Schwert",
+  "item.rift_things.rift_pickaxe": "Spalten Spitzhacke",
+  "item.rift_things.rift_axe": "Spalten Axt",
+  "item.rift_things.rift_shovel": "Spalten Schaufel",
+  "item.rift_things.rift_hoe": "Spalten Hacke",
+  "item.rift_things.rift_key": "Spalten Schlüssel",
+
+  "block.rift_things.rift_block": "Spaltenbarriere",
+  "item.rift_things.rift_block": "Spaltenbarriere",
+  "block.rift_things.rift_core": "Spaltenkern",
+  "item.rift_things.rift_core": "Spaltenkern",
+
+  "entity.rift_things.rift_remnant": "Spaltenüberreste"
 }
