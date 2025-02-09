@@ -3,11 +3,10 @@ package de.gummit.fabric;
 import de.gummit.RiftThingsMod;
 import de.gummit.entity.ModEntities;
 import de.gummit.entity.renderer.RiftRemnantRenderer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.world.entity.Entity;
 
 public final class RiftThingsFabric implements ModInitializer {
 
@@ -20,11 +19,12 @@ public final class RiftThingsFabric implements ModInitializer {
         // Run our common setup.
         RiftThingsMod.init();
 
-        EntityRendererRegistry.INSTANCE.register(ModEntities.RIFT_REMNANT.get(), new EntityRendererRegistry.Factory() {
-            @Override
-            public EntityRenderer<? extends Entity> create(EntityRenderDispatcher manager, EntityRendererRegistry.Context context) {
-                return new RiftRemnantRenderer(manager);
-            }
-        });
+        clientInit();
     }
+
+    @Environment(EnvType.CLIENT)
+    private void clientInit() {
+        EntityRendererRegistry.INSTANCE.register(ModEntities.RIFT_REMNANT.get(), (manager, context) -> new RiftRemnantRenderer(manager));
+    }
+
 }

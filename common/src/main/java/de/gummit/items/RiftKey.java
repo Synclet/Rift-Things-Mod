@@ -4,64 +4,71 @@ import de.gummit.RiftThingsMod;
 import de.gummit.core.RoomHandler;
 import de.gummit.dimension.ModDimensions;
 import de.gummit.utils.NBTUtils;
-import net.minecraft.core.particles.ParticleTypes;
+import de.gummit.utils.ServerUtils;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.level.Level;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
+import net.minecraft.util.Hand;
+import net.minecraft.util.Rarity;
+import net.minecraft.util.TypedActionResult;
+import net.minecraft.util.UseAction;
+import net.minecraft.world.World;
 
 public class RiftKey extends Item {
 
     public static final String ITEM_ID = "rift_key";
 
     public RiftKey() {
-        super(new Properties()
-                .stacksTo(1)
+        super(new Settings()
+                .maxCount(1)
                 .rarity(Rarity.RARE)
-                .tab(RiftThingsMod.RIFT_THINGS_TAB));
+                .group(RiftThingsMod.RIFT_THINGS_TAB));
     }
 
     @Override
-    public UseAnim getUseAnimation(ItemStack itemStack) {
-        return UseAnim.BOW;
+    public UseAction getUseAction(ItemStack stack) {
+        return UseAction.BOW;
     }
 
     @Override
-    public int getUseDuration(ItemStack itemStack) {
+    public int getMaxUseTime(ItemStack stack) {
         return 1000;
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand interactionHand) {
-
+    public TypedActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
         player.stopUsingItem();
-        RoomHandler roomHandler = new RoomHandler(player);
+        if(world.isClient()) {
+            return TypedActionResult.pass(player.getStackInHand(hand));
+        }
+        RoomHandler roomHandler = new RoomHandler(world);
+
         // Is the player already in the Rift
-        if (player.level.dimensionType().equalTo(ModDimensions.RIFT_TYPE)) {
+        if (player.world.getDimension() == ModDimensions.RIFT_TYPE) {
             try {
                 roomHandler.teleportPlayerBack(
                         player,
-                        NBTUtils.readBlockPosFromNBT(player.getItemInHand(interactionHand).getTag(), "originPos"),
-                        player.getItemInHand(interactionHand).getTag().getString("originDim"));
+                        NBTUtils.readBlockPosFromNBT(player.getStackInHand(hand).getTag(), "originPos"),
+                        player.getStackInHand(hand).getTag().getString("originDim"));
             } catch (NullPointerException e) {
                 e.printStackTrace();
             }
         } else {
-            if(player.getItemInHand(interactionHand).getTag() == null) {
-                player.getItemInHand(interactionHand).setTag(new CompoundTag());
+            if(player.getStackInHand(hand).getTag() == null) {
+                player.getStackInHand(hand).setTag(new CompoundTag());
             }
-            CompoundTag tag = player.getItemInHand(interactionHand).getTag();
-            NBTUtils.writeBlockPosToNBT(tag, "originPos", player.blockPosition());
-            tag.putString("originDim", player.level.dimension().location().toString());
+            CompoundTag tag = player.getStackInHand(hand).getTag();
+            NBTUtils.writeBlockPosToNBT(tag, "originPos", player.getBlockPos());
+            tag.putString("originDim", player.world.getRegistryKey().getValue().toString());
+
             roomHandler.teleportPlayerToRoom(player);
         }
 
-        return InteractionResultHolder.success(player.getItemInHand(interactionHand));
+        return TypedActionResult.success(player.getStackInHand(hand));
     }
 }

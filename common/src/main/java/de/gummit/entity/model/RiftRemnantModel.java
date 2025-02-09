@@ -1,37 +1,36 @@
 package de.gummit.entity.model;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import de.gummit.entity.RiftRemnant;
-import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.entity.model.EntityModel;
+import net.minecraft.client.util.math.MatrixStack;
 
 public class RiftRemnantModel extends EntityModel<RiftRemnant> {
 
     private final ModelPart body;
 
     public RiftRemnantModel() {
-        texWidth = 16;
-        texHeight = 16;
+        textureWidth = 16;
+        textureHeight = 16;
 
         body = new ModelPart(this);
-        body.setPos(0.0F, 24.0F, 0.0F);
-        body.texOffs(0, 0).addBox(-2.0F, -4.0F, -2.0F, 4.0F, 4.0F, 4.0F, 0.0F, false);
+        body.setPivot(0.0F, 24.0F, 0.0F);
+        body.setTextureOffset(0, 0).addCuboid(-2.0F, -4.0F, -2.0F, 4.0F, 4.0F, 4.0F, 0.0F, false);
     }
 
     @Override
-    public void setupAnim(RiftRemnant entity, float f, float g, float h, float i, float j) {
-
+    public void setAngles(RiftRemnant entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
     }
 
     @Override
-    public void renderToBuffer(PoseStack matrixStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
-        body.render(matrixStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
+    public void render(MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
+        body.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
     }
 
     public void setRotationAngle(ModelPart body, float x, float y, float z) {
-        body.xRot = x;
-        body.yRot = y;
-        body.zRot = z;
+        body.pivotX = x;
+        body.pivotY = y;
+        body.pivotZ = z;
     }
 }

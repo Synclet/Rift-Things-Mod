@@ -1,21 +1,21 @@
 package de.gummit.items;
 
 import de.gummit.RiftThingsMod;
-import net.minecraft.world.item.PickaxeItem;
-import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.Tiers;
+import net.minecraft.item.PickaxeItem;
+import net.minecraft.item.ToolMaterials;
+import net.minecraft.util.Rarity;
 
 public class RiftPickaxe extends PickaxeItem {
 
     public static final String ITEM_ID = "rift_pickaxe";
 
     public RiftPickaxe() {
-        super(Tiers.DIAMOND, // Tier
+        super(ToolMaterials.DIAMOND, // Tier
               1,             // Attack Damage Modifier
               -2.8f,         // Attack Speed Modifier
-              new Properties()
+              new Settings()
                       .rarity(Rarity.RARE)
-                      .tab(RiftThingsMod.RIFT_THINGS_TAB));
+                      .group(RiftThingsMod.RIFT_THINGS_TAB));
     }
 
 }

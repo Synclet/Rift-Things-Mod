@@ -4,12 +4,11 @@ import de.gummit.blocks.ModBlocks;
 import de.gummit.dimension.ModDimensions;
 import de.gummit.utils.NBTUtils;
 import de.gummit.utils.ServerUtils;
-import net.minecraft.core.BlockPos;
+import net.minecraft.block.Blocks;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
@@ -18,17 +17,14 @@ public class RiftRoom {
 	public int height;
 	public int position;
 
-	private final RiftSavedData savedData;
-
 	public BlockPos spawnBlock;
 
-	public RiftRoom(RiftSavedData savedData) {
-		this.savedData = savedData;
+	public RiftRoom() {
 		this.height = 2;
 	}
 
-	public RiftRoom(RiftSavedData savedData, UUID owner, int position) {
-		this(savedData);
+	public RiftRoom(UUID owner, int position) {
+		this();
 
 		this.owner = owner;
 		this.position = position;
@@ -50,63 +46,77 @@ public class RiftRoom {
 		this.spawnBlock = NBTUtils.readBlockPosFromNBT(compound, "spawnBlock");
 	}
 
-	public void generate(Level level) {
-		BlockPos corner = new BlockPos(position * 16, 0, 0);
-		BlockPos corner2 = corner.offset(15, height + 1, 15);
-
-		generateCube(level, corner, corner2, ModBlocks.RIFT_BLOCK.get().defaultBlockState(), 3);
-		generateCube(level, corner.offset(7, 0, 7), corner.offset(8, 0, 8), ModBlocks.RIFT_CORE.get().defaultBlockState(), 3);
+	public void generate(World world) {
+		updateCube(world, position, 0, height);
 	}
 
-	public int increaseHeight(int amount, Player player) {
+	public int increaseHeight(int amount) {
 		int heightLeft = 255 - (height + 1);
 		int newHeight = height;
 
 		if (heightLeft - amount > 0) {
 			newHeight = height + amount;
-		}
-		else {
+		} else {
 			newHeight = height + heightLeft;
 		}
 		int result = newHeight - height;
 		if (newHeight != height) {
-			changeHeight(savedData.server.getLevel(ModDimensions.RIFT), newHeight);
+			changeHeight(ServerUtils.getServer().getWorld(ModDimensions.RIFT), newHeight);
 		}
-
-		savedData.setDirty();
 		return result;
 	}
 
-	private void changeHeight(Level level, int newHeight) {
-		BlockPos corner = new BlockPos(position * 16, 0, 0);
-		BlockPos corner2 = corner.offset(15, height + 1, 15);
-
-		generateCube(level, corner, corner2, Blocks.AIR.defaultBlockState(), 2);
+	private void changeHeight(World world, int newHeight) {
+		updateCube(world, position, height, newHeight);
 		this.height = newHeight;
-		generate(level);
 	}
 
-	private static void generateCube(Level level, BlockPos pos1, BlockPos pos2, BlockState state, int flag)
-	{
-		int minX = Math.min(pos1.getX(), pos2.getX());
-		int minY = Math.min(pos1.getY(), pos2.getY());
-		int minZ = Math.min(pos1.getZ(), pos2.getZ());
+	private void updateCube(@NotNull World world, int position, int oldHeight, int newHeight) {
+		BlockPos corner = new BlockPos(position * 16, 0, 0);
+		BlockPos corner2 = corner.add(15, newHeight + 1, 15);
 
-		int maxX = Math.max(pos1.getX(), pos2.getX());
-		int maxY = Math.max(pos1.getY(), pos2.getY());
-		int maxZ = Math.max(pos1.getZ(), pos2.getZ());
+		int minX = Math.min(corner.getX(), corner2.getX());
+		int minY = Math.min(corner.getY(), corner2.getY());
+		int minZ = Math.min(corner.getZ(), corner2.getZ());
 
-		for (int x = minX; x <= maxX; x++) {
-			for (int y = minY; y <= maxY; y++) {
+		int maxX = Math.max(corner.getX(), corner2.getX());
+		int maxY = Math.max(corner.getY(), corner2.getY());
+		int maxZ = Math.max(corner.getZ(), corner2.getZ());
+
+		ServerUtils.getServer().execute(() -> {
+			// generating floor and ceiling
+			for (int x = minX; x <= maxX; x++) {
 				for (int z = minZ; z <= maxZ; z++) {
-					if (x == minX || y == minY || z == minZ || x == maxX || y == maxY || z == maxZ) {
-						BlockPos finpos = new BlockPos(x, y, z);
-						ServerUtils.getServer(level).executeBlocking(() -> {
-							level.setBlock(finpos, state, flag);
-						});
+					if((x == 7 || x == 8) && (z == 7 || z == 8)) {
+						world.setBlockState(new BlockPos(x, minY, z), ModBlocks.RIFT_CORE.get().getDefaultState(), 3);
+					} else {
+						world.setBlockState(new BlockPos(x, minY, z), ModBlocks.RIFT_BLOCK.get().getDefaultState(), 3);
 					}
+					world.setBlockState(new BlockPos(x, maxY, z), ModBlocks.RIFT_BLOCK.get().getDefaultState(), 3);
+					// remove old ceiling
+					if(oldHeight < 2) {
+						continue;
+					}
+					world.setBlockState(new BlockPos(x, oldHeight + 1, z), Blocks.AIR.getDefaultState(), 2);
 				}
 			}
-		}
+			// generating walls on x-axis
+			for (int x = minX; x <= maxX; x++) {
+				for (int y = minY; y <= maxY; y++) {
+					world.setBlockState(new BlockPos(x, y, minZ), ModBlocks.RIFT_BLOCK.get().getDefaultState(), 3);
+					world.setBlockState(new BlockPos(x, y, maxZ), ModBlocks.RIFT_BLOCK.get().getDefaultState(), 3);
+				}
+			}
+			// generating walls on z-axis
+			for (int z = minZ; z <= maxZ; z++) {
+				for (int y = minY; y <= maxY; y++) {
+					world.setBlockState(new BlockPos(minX, y, z), ModBlocks.RIFT_BLOCK.get().getDefaultState(), 3);
+					world.setBlockState(new BlockPos(maxX, y, z), ModBlocks.RIFT_BLOCK.get().getDefaultState(), 3);
+				}
+			}
+		});
+
 	}
+
+
 }

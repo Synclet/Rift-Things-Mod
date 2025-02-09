@@ -1,7 +1,7 @@
 package de.gummit.utils;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
 
 public class NBTUtils

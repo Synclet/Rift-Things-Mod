@@ -1,21 +1,21 @@
 package de.gummit.items;
 
 import de.gummit.RiftThingsMod;
-import net.minecraft.world.item.AxeItem;
-import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.Tiers;
+import net.minecraft.item.AxeItem;
+import net.minecraft.item.ToolMaterials;
+import net.minecraft.util.Rarity;
 
 public class RiftAxe extends AxeItem {
 
     public static final String ITEM_ID = "rift_axe";
 
     public RiftAxe() {
-        super(Tiers.DIAMOND, // Tier
+        super(ToolMaterials.DIAMOND, // Tier
               5,             // Attack Damage Modifier
               -3f,         // Attack Speed Modifier
-              new Properties()
+              new Settings()
                       .rarity(Rarity.RARE)
-                      .tab(RiftThingsMod.RIFT_THINGS_TAB));
+                      .group(RiftThingsMod.RIFT_THINGS_TAB));
     }
 
 }

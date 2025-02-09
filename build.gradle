@@ -34,7 +34,7 @@ subprojects {
 
     dependencies {
         minecraft "net.minecraft:minecraft:$rootProject.minecraft_version"
-        mappings loom.officialMojangMappings()
+        mappings "net.fabricmc:yarn:$rootProject.yarn_mappings:v2"
 
         //modLocalRuntime "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
     }

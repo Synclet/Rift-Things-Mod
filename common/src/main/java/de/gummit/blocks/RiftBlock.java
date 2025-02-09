@@ -1,15 +1,16 @@
 package de.gummit.blocks;
 
 import me.shedaniel.architectury.registry.BlockProperties;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Material;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 
 public class RiftBlock extends Block {
@@ -21,25 +22,20 @@ public class RiftBlock extends Block {
     }
 
     @Override
-    public float getExplosionResistance() {
-        return 3_600_000;
+    public float getBlastResistance() {
+        return super.getBlastResistance();
     }
 
     @Override
-    public void playerWillDestroy(Level level, BlockPos blockPos, BlockState blockState, Player player) {
+    public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
     }
 
     @Override
-    public void playerDestroy(Level level, Player player, BlockPos blockPos, BlockState blockState, @Nullable BlockEntity blockEntity, ItemStack itemStack) {
+    public void afterBreak(World world, PlayerEntity player, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ItemStack stack) {
     }
 
-    //@Override
-    //public void destroy(LevelAccessor levelAccessor, BlockPos blockPos, BlockState blockState) {
-    //    levelAccessor.setBlock(blockPos, this.defaultBlockState(), 0);
-    //}
-
     @Override
-    public float getDestroyProgress(BlockState blockState, Player player, BlockGetter blockGetter, BlockPos blockPos) {
+    public float calcBlockBreakingDelta(BlockState state, PlayerEntity player, BlockView world, BlockPos pos) {
         return 0f;
     }
 }

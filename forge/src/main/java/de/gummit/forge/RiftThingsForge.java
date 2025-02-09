@@ -4,10 +4,10 @@ import de.gummit.RiftThingsMod;
 import de.gummit.entity.ModEntities;
 import de.gummit.entity.renderer.RiftRemnantRenderer;
 import me.shedaniel.architectury.platform.forge.EventBuses;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -19,12 +19,18 @@ public final class RiftThingsForge {
         // Submit our event bus to let Architectury API register our content on the right time.
         EventBuses.registerModEventBus(RiftThingsMod.MOD_ID, FMLJavaModLoadingContext.get().getModEventBus());
 
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> this::clientBusSetup);
 
         // Run our common setup.
         RiftThingsMod.init();
     }
 
+    @OnlyIn(Dist.CLIENT)
+    private void clientBusSetup() {
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
+    }
+
+    @OnlyIn(Dist.CLIENT)
     private void clientSetup(FMLClientSetupEvent event) {
         EntityRenderDispatcher renderDispatcher = event.getMinecraftSupplier().get().getEntityRenderDispatcher();
 

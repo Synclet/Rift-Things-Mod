@@ -3,69 +3,39 @@ package de.gummit.core;
 import de.gummit.dimension.ModDimensions;
 import de.gummit.utils.ServerUtils;
 import de.gummit.utils.TeleportUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
+
 import java.util.UUID;
 
 public class RoomHandler {
 
-    private final RiftSavedData savedData;
-    public MinecraftServer server;
+    MinecraftServer server;
 
-    public RoomHandler(LivingEntity livingEntity) {
-        server = ServerUtils.getServer(livingEntity);
-        savedData = new RiftSavedData(server);
+    public RoomHandler(World world) {
+        if(world.isClient()) {
+            throw new RuntimeException("Trying to directly access Server-data from the Client - Rift-Things");
+        }
+        server = ServerUtils.getServer(world);
     }
 
-    // not in use and not functional
-    @Deprecated
-    public RiftRoom getRoomFromPos(Level level, BlockPos pos) {
-        if (level.dimension() != ModDimensions.RIFT) {
-            System.out.println(" -------------- level");
-            return null;
-        }
-        if (pos.getZ() > 16 || pos.getZ() < 0) {
-            System.out.println(" ---------------- pos");
-            return null;
-        }
-
-        LevelChunk c = level.getChunkAt(pos);
-
-        int position = c.getPos().x / 16;
-
-        for (RiftRoom cube : savedData.cubes.values()) {
-            if (cube.position / 16 == position) {
-                if (pos.getY() <= 0 || pos.getY() > cube.height + 1 || pos.getX() < position * 16 || pos.getX() > cube.position * 16 + 15) {
-                    System.out.println(" --------------------- whatever");
-                    return null;
-                }
-                else {
-                    return cube;
-                }
-            }
-        }
-
-        return null;
+    public RiftRoom getRoomFromPlayer(PlayerEntity player) {
+        return RiftSavedData.getSaveData(server).cubes.get(player.getUuid());
     }
 
-    public RiftRoom getRoomFromPlayer(Player player) {
-        return savedData.cubes.get(player.getUUID());
-    }
-
-    public void teleportPlayerToRoom(Player player) {
+    public void teleportPlayerToRoom(PlayerEntity player) {
+        RiftSavedData savedData = RiftSavedData.getSaveData(server);
         UUID uuid = player.getGameProfile().getId();
         RiftRoom riftRoom;
 
         if (savedData.cubes.containsKey(uuid)) {
             riftRoom = savedData.cubes.get(uuid);
         } else {
-            riftRoom = generateRoom(uuid);
+            riftRoom = generateRoom(player);
         }
 
         TeleportUtils.teleport(
@@ -74,20 +44,21 @@ public class RoomHandler {
                 new BlockPos(riftRoom.spawnBlock.getX() + 0.5, riftRoom.spawnBlock.getY() + 1, riftRoom.spawnBlock.getZ() + 0.5));
     }
 
-    public void teleportPlayerBack(Player player, BlockPos pos, String dim) {
-        ResourceKey<Level> level = ResourceKey.create(
-                ResourceKey.createRegistryKey(new ResourceLocation("minecraft:dimension")),
-                new ResourceLocation(dim));
+    public void teleportPlayerBack(PlayerEntity player, BlockPos pos, String dim) {
+        RegistryKey<World> level = RegistryKey.of(
+                RegistryKey.ofRegistry(new Identifier("minecraft:dimension")),
+                new Identifier(dim));
 
         TeleportUtils.teleport(level, player, pos);
     }
 
-    private RiftRoom generateRoom(UUID uuid) {
-        RiftRoom cube = new RiftRoom(savedData, uuid, savedData.cubes.size() * 16);
+    private RiftRoom generateRoom(PlayerEntity player) {
+        RiftSavedData savedData = RiftSavedData.getSaveData(server);
+        RiftRoom cube = new RiftRoom(player.getUuid(), savedData.cubes.size() * 16);
 
-        cube.generate(server.getLevel(ModDimensions.RIFT));
-        savedData.cubes.put(uuid, cube);
-        savedData.setDirty();
+        cube.generate(server.getWorld(ModDimensions.RIFT));
+        savedData.cubes.put(player.getUuid(), cube);
+        savedData.markDirty();
         return cube;
     }
 

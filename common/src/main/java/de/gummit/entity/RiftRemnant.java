@@ -1,23 +1,24 @@
 package de.gummit.entity;
 
 import de.gummit.items.ModItems;
-import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.entity.*;
+import net.minecraft.entity.attribute.AttributeContainer;
+import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.EntityDamageSource;
+import net.minecraft.entity.mob.FlyingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.EntityDamageSource;
-import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.attributes.AttributeMap;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.util.ActionResult;
+import net.minecraft.world.World;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class RiftRemnant extends FlyingMob {
+public class RiftRemnant extends FlyingEntity {
 
     public static final String ENTITY_ID = "rift_remnant";
 
@@ -25,40 +26,41 @@ public class RiftRemnant extends FlyingMob {
 
     private Integer riftAge = 0;
 
-    public RiftRemnant(EntityType<? extends FlyingMob> entityType, Level level) {
-        super(entityType, level);
+    public RiftRemnant(EntityType<? extends FlyingEntity> entityType, World world) {
+        super(entityType, world);
     }
 
     @Override
-    public AttributeMap getAttributes() {
-        return new AttributeMap(ModEntities.getDefaultAttributes()
-                .add(Attributes.MAX_HEALTH, 1d)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 20d)
+    public AttributeContainer getAttributes() {
+        return new AttributeContainer(ModEntities.getDefaultAttributes()
+                .add(EntityAttributes.GENERIC_MAX_HEALTH, 1d)
+                .add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, 20d)
                 .build());
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag compoundTag) {
-        super.readAdditionalSaveData(compoundTag);
-        this.riftAge = compoundTag.getInt("riftAge");
+    public void readCustomDataFromTag(CompoundTag tag) {
+        super.readCustomDataFromTag(tag);
+        this.riftAge = tag.getInt("riftAge");
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag compoundTag) {
-        super.readAdditionalSaveData(compoundTag);
-        compoundTag.putInt("riftAge", riftAge);
+    public void writeCustomDataToTag(CompoundTag tag) {
+        //super.readAdditionalSaveData(tag);
+        super.writeCustomDataToTag(tag);
+        tag.putInt("riftAge", riftAge);
     }
 
     @Override
     public void tick() {
         super.tick();
         riftAge++;
-        if (!this.level.isClientSide && riftAge >= LIFETIME) {
+        if (!this.world.isClient && riftAge >= LIFETIME) {
             this.remove();
             return;
         }
-        if (this.level.isClientSide && Math.random() > 0.35f) {
-            this.level.addParticle(
+        if (this.world.isClient && Math.random() > 0.35f) {
+            this.world.addParticle(
                     ParticleTypes.SQUID_INK,
                     this.getX() + (Math.random() - 0.5),
                     this.getY() + (Math.random() - 0.5),
@@ -68,44 +70,45 @@ public class RiftRemnant extends FlyingMob {
     }
 
     @Override
-    public boolean hurt(DamageSource damageSource, float amount) {
-        if(damageSource.isMagic() || damageSource == DamageSource.OUT_OF_WORLD) {
-            return super.hurt(damageSource, amount);
+    public boolean damage(DamageSource damageSource, float amount) {
+        if(damageSource.getMagic() || damageSource.isOutOfWorld()) {
+            return super.damage(damageSource, amount);
         }
 
         if(!(damageSource instanceof EntityDamageSource)) {
             return false;
         }
         EntityDamageSource eds = (EntityDamageSource) damageSource;
-        if(!(eds.getDirectEntity() instanceof Player)) {
+        if(!(eds.getAttacker() instanceof PlayerEntity)) {
             return false;
         }
-        ItemStack weapon = ((Player) eds.getDirectEntity()).getMainHandItem();
-        List<Item> riftTools = Arrays.asList(ModItems.RIFT_SWORD.get().asItem(), ModItems.RIFT_PICKAXE.get().asItem(), ModItems.RIFT_AXE.get().asItem(), ModItems.RIFT_SHOVEL.get().asItem(), ModItems.RIFT_HOE.get().asItem());
-        if(weapon != null && riftTools.contains(weapon.getItem())) {
-            return super.hurt(damageSource, amount);
+        ItemStack weapon = ((PlayerEntity) eds.getAttacker()).getMainHandStack();
+        ItemStack offWeapon = ((PlayerEntity) eds.getAttacker()).getOffHandStack();
+        List<Item> riftTools = Arrays.asList(ModItems.RIFT_SWORD.get(), ModItems.RIFT_PICKAXE.get(), ModItems.RIFT_AXE.get(), ModItems.RIFT_SHOVEL.get(), ModItems.RIFT_HOE.get());
+        if((weapon != null && riftTools.contains(weapon.getItem())) || (offWeapon != null && riftTools.contains(offWeapon.getItem()))) {
+            return super.damage(damageSource, amount);
         }
 
         return false;
     }
 
     @Override
-    public EntityDimensions getDimensions(Pose pose) {
+    public EntityDimensions getDimensions(EntityPose pose) {
         return new EntityDimensions(0.25f, 0.25f, true);
     }
 
     @Override
-    public void knockback(float f, double d, double e) {
+    public void takeKnockback(float f, double d, double e) {
         // do nothing
     }
 
     @Override
-    public void push(Entity entity) {
+    public void pushAwayFrom(Entity entity) {
         // do nothing
     }
 
     @Override
-    public boolean canCollideWith(Entity entity) {
+    public boolean collidesWith(Entity other) {
         return false;
     }
 
@@ -114,16 +117,16 @@ public class RiftRemnant extends FlyingMob {
         return false;
     }
 
-    public static InteractionResult spawnOnDeath(LivingEntity entity, DamageSource source) {
-        if (source.getEntity() instanceof Player && !(entity instanceof RiftRemnant) && Math.random() <= 0.05) {
+    public static ActionResult spawnOnDeath(LivingEntity entity, DamageSource source) {
+        if (source.getAttacker() instanceof PlayerEntity && !(entity instanceof RiftRemnant) && Math.random() <= 0.05) {
 
-            RiftRemnant rift = ModEntities.RIFT_REMNANT.get().create(entity.level);
+            RiftRemnant rift = ModEntities.RIFT_REMNANT.get().create(entity.world);
             if (rift != null) {
                 rift.setPos(entity.getX(), entity.getY() + 0.2, entity.getZ());
-                entity.level.addFreshEntity(rift);
+                entity.world.spawnEntity(rift);
             }
         }
-        return InteractionResult.PASS;
+        return ActionResult.PASS;
     }
 
 }
