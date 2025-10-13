@@ -1,11 +1,6 @@
 package de.gummit.fabric;
 
 import de.gummit.RiftThingsMod;
-import de.gummit.entity.ModEntities;
-import de.gummit.entity.renderer.RiftRemnantRenderer;
-import dev.architectury.registry.client.level.entity.EntityRendererRegistry;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.fabricmc.api.ModInitializer;
 
 public final class RiftThingsFabric implements ModInitializer {
@@ -18,13 +13,6 @@ public final class RiftThingsFabric implements ModInitializer {
 
         // Run our common setup.
         RiftThingsMod.init();
-
-        //clientInit();
     }
-
-    //@Environment(EnvType.CLIENT)
-    //private void clientInit() {
-    //    EntityRendererRegistry.register(ModEntities.RIFT_REMNANT, RiftRemnantRenderer::new);
-    //}
 
 }
