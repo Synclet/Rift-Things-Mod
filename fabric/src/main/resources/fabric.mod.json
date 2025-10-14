@@ -3,13 +3,13 @@
   "id": "rift_things",
   "version": "${version}",
   "name": "Rift Things",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "description": "",
   "authors": [
-    "Me!"
+    "Synclet"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "",
+    "sources": "https://github.com/Synclet/Rift-Things-Mod"
   },
   "license": "CC0-1.0",
   "icon": "assets/rift_things/icon.png",
@@ -19,7 +19,7 @@
       "de.gummit.fabric.RiftThingsFabric"
     ],
     "client": [
-      "de.gummit.fabric.client.ExampleModFabricClient"
+      "de.gummit.fabric.client.RiftThingsFabricClient"
     ]
   },
   "mixins": [
@@ -29,8 +29,7 @@
     "fabricloader": ">=0.15.11",
     "minecraft": "~1.16.5",
     "java": ">=8",
-    "architectury": ">=1.32.68",
-    "fabric-api": "*"
+    "architectury": ">=1.32.68"
   },
   "suggests": {
     "another-mod": "*"

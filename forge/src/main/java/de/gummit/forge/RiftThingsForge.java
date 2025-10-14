@@ -19,22 +19,8 @@ public final class RiftThingsForge {
         // Submit our event bus to let Architectury API register our content on the right time.
         EventBuses.registerModEventBus(RiftThingsMod.MOD_ID, FMLJavaModLoadingContext.get().getModEventBus());
 
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> this::clientBusSetup);
-
         // Run our common setup.
         RiftThingsMod.init();
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private void clientBusSetup() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private void clientSetup(FMLClientSetupEvent event) {
-        EntityRenderDispatcher renderDispatcher = event.getMinecraftSupplier().get().getEntityRenderDispatcher();
-
-        renderDispatcher.register(ModEntities.RIFT_REMNANT.get(), new RiftRemnantRenderer(renderDispatcher));
     }
 
 }

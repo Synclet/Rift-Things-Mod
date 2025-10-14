@@ -28,8 +28,8 @@ public final class RiftThingsMod {
 
     public static void init() {
         LifecycleEvent.SERVER_STARTING.register((server) -> ServerUtils.dedicatedServer = server);
-        ModItems.init();
         ModBlocks.init();
+        ModItems.init();
         ModEntities.init();
         ModDimensions.init();
     }

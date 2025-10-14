@@ -83,11 +83,16 @@ public class RiftRoom {
 		int maxY = Math.max(corner.getY(), corner2.getY());
 		int maxZ = Math.max(corner.getZ(), corner2.getZ());
 
+		int coreX1 = (int) Math.floor((corner.getX() + corner2.getX()) / 2f);
+		int coreX2 = (int) Math.ceil((corner.getX() + corner2.getX()) / 2f);
+		int coreZ1 = (int) Math.floor((corner.getZ() + corner2.getZ()) / 2f);
+		int coreZ2 = (int) Math.ceil((corner.getZ() + corner2.getZ()) / 2f);
+
 		ServerUtils.getServer().execute(() -> {
 			// generating floor and ceiling
 			for (int x = minX; x <= maxX; x++) {
 				for (int z = minZ; z <= maxZ; z++) {
-					if((x == 7 || x == 8) && (z == 7 || z == 8)) {
+					if((x == coreX1 || x == coreX2) && (z == coreZ1 || z == coreZ2)) {
 						world.setBlockState(new BlockPos(x, minY, z), ModBlocks.RIFT_CORE.get().getDefaultState(), 3);
 					} else {
 						world.setBlockState(new BlockPos(x, minY, z), ModBlocks.RIFT_BLOCK.get().getDefaultState(), 3);
