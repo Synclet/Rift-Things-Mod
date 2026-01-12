@@ -4,6 +4,7 @@ import de.gummit.items.ModItems;
 import dev.architectury.event.EventResult;
 import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.AttributeContainer;
+import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
@@ -28,14 +29,20 @@ public class RiftRemnant extends FlyingEntity {
 
     public RiftRemnant(EntityType<? extends FlyingEntity> entityType, World world) {
         super(entityType, world);
+        setPersistent();
     }
 
     @Override
     public AttributeContainer getAttributes() {
-        return new AttributeContainer(ModEntities.getDefaultAttributes()
+        DefaultAttributeContainer.Builder ab = ModEntities.getDefaultAttributes()
                 .add(EntityAttributes.GENERIC_MAX_HEALTH, 1d)
-                .add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, 20d)
-                .build());
+                .add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, 20d);
+
+        try {
+            ab.add(dev.emi.stepheightentityattribute.StepHeightEntityAttributeMain.STEP_HEIGHT, 0);
+        } catch (Throwable ignored) {}
+
+        return new AttributeContainer(ab.build());
     }
 
     @Override
@@ -70,7 +77,7 @@ public class RiftRemnant extends FlyingEntity {
 
     @Override
     public boolean damage(DamageSource damageSource, float amount) {
-        if(damageSource.isOf(DamageTypes.MAGIC) || damageSource.isOf(DamageTypes.OUT_OF_WORLD)) {
+        if(damageSource.isOf(DamageTypes.MAGIC) || damageSource.isOf(DamageTypes.INDIRECT_MAGIC) || damageSource.isOf(DamageTypes.OUT_OF_WORLD)) {
             return super.damage(damageSource, amount);
         }
 
@@ -117,7 +124,7 @@ public class RiftRemnant extends FlyingEntity {
 
             RiftRemnant rift = ModEntities.RIFT_REMNANT.get().create(entity.getWorld());
             if (rift != null) {
-                rift.setPos(entity.getX(), entity.getY() + 0.2, entity.getZ());
+                rift.updatePosition(entity.getX(), entity.getY() + 0.2, entity.getZ());
                 entity.getWorld().spawnEntity(rift);
             }
         }
