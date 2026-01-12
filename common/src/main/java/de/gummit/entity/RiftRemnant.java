@@ -8,7 +8,7 @@ import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
-import net.minecraft.entity.mob.FlyingEntity;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -19,7 +19,7 @@ import net.minecraft.world.World;
 import java.util.Arrays;
 import java.util.List;
 
-public class RiftRemnant extends FlyingEntity {
+public class RiftRemnant extends MobEntity {
 
     public static final String ENTITY_ID = "rift_remnant";
 
@@ -27,7 +27,7 @@ public class RiftRemnant extends FlyingEntity {
 
     private Integer riftAge = 0;
 
-    public RiftRemnant(EntityType<? extends FlyingEntity> entityType, World world) {
+    public RiftRemnant(EntityType<? extends MobEntity> entityType, World world) {
         super(entityType, world);
         setPersistent();
     }
@@ -59,11 +59,13 @@ public class RiftRemnant extends FlyingEntity {
 
     @Override
     public void tick() {
-        super.tick();
-        riftAge++;
-        if (!this.getWorld().isClient && riftAge >= LIFETIME) {
-            this.remove(RemovalReason.DISCARDED);
-            return;
+        //super.tick();
+        if(!this.getWorld().isClient) {
+            riftAge++;
+            if(riftAge >= LIFETIME) {
+                this.remove(RemovalReason.DISCARDED);
+                return;
+            }
         }
         if (this.getWorld().isClient && Math.random() > 0.35f) {
             this.getWorld().addParticle(
