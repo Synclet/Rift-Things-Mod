@@ -3,6 +3,8 @@ package de.gummit.entity;
 import de.gummit.items.ModItems;
 import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.AttributeContainer;
+import net.minecraft.entity.attribute.EntityAttribute;
+import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.EntityDamageSource;
@@ -14,6 +16,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.util.ActionResult;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,6 +26,7 @@ public class RiftRemnant extends FlyingEntity {
     public static final String ENTITY_ID = "rift_remnant";
 
     public static final Integer LIFETIME = 1000;
+    public static final String AGE_NBT_KEY = "riftAge";
 
     private Integer riftAge = 0;
 
@@ -41,23 +45,24 @@ public class RiftRemnant extends FlyingEntity {
     @Override
     public void readCustomDataFromTag(CompoundTag tag) {
         super.readCustomDataFromTag(tag);
-        this.riftAge = tag.getInt("riftAge");
+        this.riftAge = tag.getInt(AGE_NBT_KEY);
     }
 
     @Override
     public void writeCustomDataToTag(CompoundTag tag) {
-        //super.readAdditionalSaveData(tag);
         super.writeCustomDataToTag(tag);
-        tag.putInt("riftAge", riftAge);
+        tag.putInt(AGE_NBT_KEY, riftAge);
     }
 
     @Override
     public void tick() {
         super.tick();
-        riftAge++;
-        if (!this.world.isClient && riftAge >= LIFETIME) {
-            this.remove();
-            return;
+        if (!this.world.isClient) {
+            riftAge++;
+            if (riftAge >= LIFETIME) {
+                this.remove();
+                return;
+            }
         }
         if (this.world.isClient && Math.random() > 0.35f) {
             this.world.addParticle(
@@ -67,6 +72,33 @@ public class RiftRemnant extends FlyingEntity {
                     this.getZ() + (Math.random() - 0.5),
                     0d, 0d, 0d);
         }
+    }
+
+    @Nullable
+    @Override
+    public EntityAttributeInstance getAttributeInstance(EntityAttribute attribute) {
+        if(this.getAttributes().hasAttribute(attribute)) {
+            return super.getAttributeInstance(attribute);
+        }
+        EntityAttributeInstance result = new EntityAttributeInstance(attribute, v -> {});
+        result.setBaseValue(0);
+        return result;
+    }
+
+    @Override
+    public double getAttributeValue(EntityAttribute attribute) {
+        if(this.getAttributes().hasAttribute(attribute)) {
+            return super.getAttributeValue(attribute);
+        }
+        return 0;
+    }
+
+    @Override
+    public double getAttributeBaseValue(EntityAttribute attribute) {
+        if(this.getAttributes().hasAttribute(attribute)) {
+            return super.getAttributeBaseValue(attribute);
+        }
+        return 0;
     }
 
     @Override
@@ -122,7 +154,7 @@ public class RiftRemnant extends FlyingEntity {
 
             RiftRemnant rift = ModEntities.RIFT_REMNANT.get().create(entity.world);
             if (rift != null) {
-                rift.setPos(entity.getX(), entity.getY() + 0.2, entity.getZ());
+                rift.updatePosition(entity.getX(), entity.getY() + 0.2, entity.getZ());
                 entity.world.spawnEntity(rift);
             }
         }

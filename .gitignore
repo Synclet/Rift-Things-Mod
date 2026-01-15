@@ -26,3 +26,6 @@ common/run
 .classpath
 # IntelliJ
 .idea
+
+# Transformer
+.architectury-transformer/

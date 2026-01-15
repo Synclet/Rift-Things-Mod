@@ -5,6 +5,7 @@ import de.gummit.core.RoomHandler;
 import de.gummit.dimension.ModDimensions;
 import de.gummit.utils.NBTUtils;
 import de.gummit.utils.ServerUtils;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -17,27 +18,24 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Rarity;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class RiftKey extends Item {
 
     public static final String ITEM_ID = "rift_key";
+
+    public static final String DIM_NBT_KEY = "originDim";
+    public static final String POS_NBT_KEY = "originPos";
 
     public RiftKey() {
         super(new Settings()
                 .maxCount(1)
                 .rarity(Rarity.RARE)
                 .group(RiftThingsMod.RIFT_THINGS_TAB));
-    }
-
-    @Override
-    public UseAction getUseAction(ItemStack stack) {
-        return UseAction.BOW;
-    }
-
-    @Override
-    public int getMaxUseTime(ItemStack stack) {
-        return 1000;
     }
 
     @Override
@@ -49,26 +47,39 @@ public class RiftKey extends Item {
         RoomHandler roomHandler = new RoomHandler(world);
 
         // Is the player already in the Rift
+        CompoundTag nbt = player.getStackInHand(hand).getTag();
         if (player.world.getDimension() == ModDimensions.RIFT_TYPE) {
-            try {
-                roomHandler.teleportPlayerBack(
-                        player,
-                        NBTUtils.readBlockPosFromNBT(player.getStackInHand(hand).getTag(), "originPos"),
-                        player.getStackInHand(hand).getTag().getString("originDim"));
-            } catch (NullPointerException e) {
-                e.printStackTrace();
+            if(nbt == null || !nbt.contains(DIM_NBT_KEY) || !nbt.contains(POS_NBT_KEY)) {
+                return TypedActionResult.fail(player.getStackInHand(hand));
             }
+            roomHandler.teleportPlayerBack(
+                    player,
+                    NBTUtils.readBlockPosFromNBT(nbt, POS_NBT_KEY),
+                    nbt.getString(DIM_NBT_KEY));
         } else {
-            if(player.getStackInHand(hand).getTag() == null) {
-                player.getStackInHand(hand).setTag(new CompoundTag());
+            if(nbt == null) {
+                nbt = new CompoundTag();
             }
-            CompoundTag tag = player.getStackInHand(hand).getTag();
-            NBTUtils.writeBlockPosToNBT(tag, "originPos", player.getBlockPos());
-            tag.putString("originDim", player.world.getRegistryKey().getValue().toString());
+            NBTUtils.writeBlockPosToNBT(nbt, POS_NBT_KEY, player.getBlockPos());
+            nbt.putString(DIM_NBT_KEY, player.world.getRegistryKey().getValue().toString());
+            player.getStackInHand(hand).setTag(nbt);
 
             roomHandler.teleportPlayerToRoom(player);
         }
 
         return TypedActionResult.success(player.getStackInHand(hand));
+    }
+
+    @Override
+    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
+        CompoundTag nbt = stack.getTag();
+        if(nbt == null || !nbt.contains(DIM_NBT_KEY) || !nbt.contains(POS_NBT_KEY)) {
+            super.appendTooltip(stack, world, tooltip, context);
+            return;
+        }
+        BlockPos pos = NBTUtils.readBlockPosFromNBT(nbt, POS_NBT_KEY);
+
+        tooltip.add(Text.of(nbt.getString(DIM_NBT_KEY) + " X: " + pos.getX() + " Y: " + pos.getY() + " Z: " + pos.getZ()));
+        super.appendTooltip(stack, world, tooltip, context);
     }
 }
