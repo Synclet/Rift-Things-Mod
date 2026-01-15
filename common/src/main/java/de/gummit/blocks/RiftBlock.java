@@ -16,7 +16,7 @@ public class RiftBlock extends Block {
     public static final String BLOCK_ID = "rift_block";
 
     public RiftBlock() {
-        super(Settings.copy(Blocks.BARRIER));
+        super(Settings.copy(Blocks.BEDROCK));
     }
 
     @Override
